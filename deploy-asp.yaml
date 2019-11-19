@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: asp-app
+  labels:
+    app.kubernetes.io/name: asp-app
+    app.kubernetes.io/instance: asp-app
+    app: bri-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: asp-app
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: asp-app
+        app: asp-app
+    spec:
+      containers:
+        - name: bri
+          image: "1hqm/aspnetapp:latest"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+
+--- 
+apiVersion: v1
+kind: Service
+metadata:
+  name: aspnetapp
+  labels:
+    app.kubernetes.io/name: asp-app
+    app.kubernetes.io/instance: asp-app    
+spec:
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http      
+  selector:
+    app: asp-app

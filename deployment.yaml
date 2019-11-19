@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bri-app
+  labels:
+    app.kubernetes.io/name: bri
+    app.kubernetes.io/instance: bri
+    app: bri-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bri-app
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: bri      
+        app: bri-app
+    spec:
+      containers:
+        - name: bri
+          image: "nginx:stable"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http

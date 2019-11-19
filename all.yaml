@@ -1,0 +1,90 @@
+---
+# Source: bri/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: release-name-bri
+  labels:
+    app.kubernetes.io/name: bri
+    helm.sh/chart: bri-0.1.0
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/managed-by: Tiller
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: bri
+    app.kubernetes.io/instance: release-name
+
+---
+# Source: bri/templates/tests/test-connection.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "release-name-bri-test-connection"
+  labels:
+    app.kubernetes.io/name: bri
+    helm.sh/chart: bri-0.1.0
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/managed-by: Tiller
+  annotations:
+    "helm.sh/hook": test-success
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args:  ['release-name-bri:80']
+  restartPolicy: Never
+
+---
+# Source: bri/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: release-name-bri
+  labels:
+    app.kubernetes.io/name: bri
+    helm.sh/chart: bri-0.1.0
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/managed-by: Tiller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: bri
+      app.kubernetes.io/instance: release-name
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: bri
+        app.kubernetes.io/instance: release-name
+    spec:
+      containers:
+        - name: bri
+          image: "nginx:stable"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {}
+            
+
+---
+# Source: bri/templates/ingress.yaml
+
+
