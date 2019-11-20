@@ -1,0 +1,13 @@
+apiVersion:  networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: briapp-vs
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - briapp-gw
+  http:
+  - route:
+    - destination:
+        host: bri
